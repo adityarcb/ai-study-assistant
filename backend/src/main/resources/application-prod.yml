@@ -13,10 +13,10 @@ spring:
     console:
       enabled: false
 
-gemini:
+openrouter:
   # Render environment variable
   api:
-    key: ${GEMINI_API_KEY}
+    key: ${OPENROUTER_API_KEY}
 
 cors:
   # Render environment variable to allow Vercel domain

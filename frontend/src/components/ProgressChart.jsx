@@ -78,7 +78,9 @@ export default function ProgressChart({ progressData }) {
           font: { family: 'Inter', size: 12 },
           padding: 20,
           usePointStyle: true,
-          pointStyleWidth: 8,
+          pointStyle: 'circle',
+          boxWidth: 8,
+          boxHeight: 8,
         },
       },
       tooltip: {

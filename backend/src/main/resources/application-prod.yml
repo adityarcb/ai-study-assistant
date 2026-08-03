@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    # Use H2 in file-based mode (data will be lost if Render spins down free tier without a persistent disk)
+    url: jdbc:h2:file:./data/studyassistant_prod
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: false
+
+gemini:
+  # Render environment variable
+  api:
+    key: ${GEMINI_API_KEY}
+
+cors:
+  # Render environment variable to allow Vercel domain
+  allowed-origins: ${ALLOWED_ORIGIN:http://localhost:5173}

@@ -19,14 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class GeminiService {
+public class OpenRouterService {
 
-    private static final Logger logger = LoggerFactory.getLogger(GeminiService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpenRouterService.class);
 
-    @Value("${app.gemini.api.key}")
+    @Value("${app.openrouter.api.key}")
     private String apiKey;
 
-    @Value("${app.gemini.api.url}")
+    @Value("${app.openrouter.api.url:https://openrouter.ai/api/v1/chat/completions}")
     private String apiUrl;
 
     private final NoteRepository noteRepository;
@@ -36,7 +36,7 @@ public class GeminiService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 
-    public GeminiService(NoteRepository noteRepository, FlashcardRepository flashcardRepository,
+    public OpenRouterService(NoteRepository noteRepository, FlashcardRepository flashcardRepository,
                          QuizRepository quizRepository, QuizQuestionRepository quizQuestionRepository) {
         this.noteRepository = noteRepository;
         this.flashcardRepository = flashcardRepository;
@@ -51,8 +51,8 @@ public class GeminiService {
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + noteId));
 
         String prompt = buildPrompt(note.getContent());
-        String geminiResponse = callGeminiApi(prompt);
-        String jsonContent = extractJsonFromResponse(geminiResponse);
+        String aiResponse = callOpenRouterApi(prompt);
+        String jsonContent = extractJsonFromResponse(aiResponse);
 
         try {
             JsonNode root = objectMapper.readTree(jsonContent);
@@ -110,7 +110,7 @@ public class GeminiService {
             return new GenerateResponse(summary, flashcardDTOs, quiz.getId(), questionDTOs);
 
         } catch (Exception e) {
-            logger.error("Failed to parse Gemini response: {}", e.getMessage());
+            logger.error("Failed to parse AI response: {}", e.getMessage());
             throw new RuntimeException("Failed to parse AI response. Please try again. Error: " + e.getMessage());
         }
     }
@@ -121,9 +121,9 @@ public class GeminiService {
                 Given the following lecture notes or topic, do three things:
 
                 1. Create a one-page flowchart-like tree structure with short descriptions for each topic and subtopic, representing the core concepts. Use markdown bullet points and indentation to format it cleanly.
-                2. Generate exactly 10 flashcards as a JSON array:
+                2. Generate exactly 5 flashcards as a JSON array:
                    [{"question": "...", "answer": "..."}]
-                3. Generate exactly 30 multiple choice quiz questions as a JSON array:
+                3. Generate exactly 5 multiple choice quiz questions as a JSON array:
                    [{"questionText": "...", "optionA": "...", "optionB": "...", "optionC": "...", "optionD": "...", "correctOption": "A"}]
 
                 Return ONLY valid JSON in this exact format, nothing else:
@@ -138,46 +138,48 @@ public class GeminiService {
                 """ + noteContent;
     }
 
-    private String callGeminiApi(String prompt) {
-        String url = apiUrl + "?key=" + apiKey;
-
+    private String callOpenRouterApi(String prompt) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + apiKey);
+        headers.set("HTTP-Referer", "http://localhost:5173");
+        headers.set("X-Title", "AI Study Assistant");
 
         String requestBody;
         try {
-            requestBody = objectMapper.writeValueAsString(
-                    new GeminiRequest(prompt)
+            java.util.Map<String, Object> requestMap = java.util.Map.of(
+                "model", "openrouter/free",
+                "messages", List.of(java.util.Map.of("role", "user", "content", prompt)),
+                "response_format", java.util.Map.of("type", "json_object")
             );
+            requestBody = objectMapper.writeValueAsString(requestMap);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to build Gemini request: " + e.getMessage());
+            throw new RuntimeException("Failed to build OpenRouter request: " + e.getMessage());
         }
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
         try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, String.class);
 
             if (response.getStatusCode() != HttpStatus.OK) {
-                throw new RuntimeException("Gemini API returned status: " + response.getStatusCode());
+                throw new RuntimeException("OpenRouter API returned status: " + response.getStatusCode());
             }
 
             return response.getBody();
         } catch (Exception e) {
-            logger.error("Gemini API call failed: {}", e.getMessage());
-            throw new RuntimeException("Failed to call Gemini API: " + e.getMessage());
+            logger.error("OpenRouter API call failed: {}", e.getMessage());
+            throw new RuntimeException("Failed to call OpenRouter API: " + e.getMessage());
         }
     }
 
-    private String extractJsonFromResponse(String geminiResponse) {
+    private String extractJsonFromResponse(String responseStr) {
         try {
-            JsonNode root = objectMapper.readTree(geminiResponse);
-            String text = root.get("candidates")
+            JsonNode root = objectMapper.readTree(responseStr);
+            String text = root.get("choices")
                     .get(0)
+                    .get("message")
                     .get("content")
-                    .get("parts")
-                    .get(0)
-                    .get("text")
                     .asText();
 
             // Strip markdown code fences if present
@@ -193,30 +195,7 @@ public class GeminiService {
             return text.trim();
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to extract content from Gemini response: " + e.getMessage());
-        }
-    }
-
-    // Inner class for Gemini API request body
-    private static class GeminiRequest {
-        private final List<Content> contents;
-
-        public GeminiRequest(String text) {
-            this.contents = List.of(new Content(List.of(new Part(text))));
-        }
-
-        public List<Content> getContents() { return contents; }
-
-        private static class Content {
-            private final List<Part> parts;
-            public Content(List<Part> parts) { this.parts = parts; }
-            public List<Part> getParts() { return parts; }
-        }
-
-        private static class Part {
-            private final String text;
-            public Part(String text) { this.text = text; }
-            public String getText() { return text; }
+            throw new RuntimeException("Failed to extract content from OpenRouter response: " + e.getMessage());
         }
     }
 }

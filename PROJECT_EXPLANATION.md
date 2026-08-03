@@ -10,7 +10,7 @@ The AI Study Assistant is a full-stack web application designed to help students
 
 **What it does:**
 1. A user uploads their lecture notes, a PDF, or a PowerPoint (`.pptx`) file.
-2. The app reads the file and sends the text to Google's Artificial Intelligence (Gemini).
+2. The app reads the file and sends the text to Groq's Artificial Intelligence (Groq API).
 3. The AI reads the text and automatically creates:
    - A detailed **Topic Flowchart** (to see how concepts connect).
    - **10 interactive Flashcards** (for memorization).
@@ -42,7 +42,7 @@ This is the hidden part of the app that does all the heavy lifting, security, an
 * **H2 Database:** This is where we save users, passwords, flashcards, and quiz scores. H2 is an "in-memory" database, meaning it is super lightweight and saves the data directly to a folder in your project (`backend/data`). It requires zero complicated setup.
 
 ### 4. The AI (The Brain)
-* **Google Gemini API:** Once the backend extracts text from a file, it sends that text over the internet to Google's AI servers using your secret API Key. The AI acts as a super-tutor, reading the text and generating the study materials.
+* **Groq API:** Once the backend extracts text from a file, it sends that text over the internet to Groq's AI servers using your secret API Key. The AI acts as a super-tutor, reading the text and generating the study materials.
 
 ---
 
@@ -55,7 +55,7 @@ sequenceDiagram
     participant User
     participant Frontend as React Frontend
     participant Backend as Spring Boot Backend
-    participant AI as Google Gemini AI
+    participant AI as Groq AI
     participant DB as H2 Database
 
     User->>Frontend: Uploads "Biology.pdf" & clicks Generate
@@ -71,8 +71,8 @@ sequenceDiagram
 1. **Upload:** You drag and drop a file on the Frontend.
 2. **Transit:** The Frontend sends that file to the Backend.
 3. **Reading:** The Backend cracks open the file and pulls out the words.
-4. **AI Generation:** The Backend sends the words to Google Gemini and says: *"Follow these strict rules: Give me a flowchart, exactly 10 flashcards, and exactly 30 quiz questions."*
-5. **Saving:** Google Gemini replies with the homework. The Backend saves this into the H2 Database.
+4. **AI Generation:** The Backend sends the words to Groq AI and says: *"Follow these strict rules: Give me a flowchart, exactly 10 flashcards, and exactly 30 quiz questions."*
+5. **Saving:** Groq AI replies with the homework. The Backend saves this into the H2 Database.
 6. **Display:** The Backend hands the data back to the Frontend, which renders the nice-looking flashcards on your screen.
 
 ---
@@ -85,7 +85,7 @@ If you ever want to change how the app works or looks, here is your cheat sheet:
   Look in the Frontend folder. `frontend/tailwind.config.js` controls the main colors, `frontend/src/styles/index.css` has custom CSS, and the actual screens are in `frontend/src/pages/`.
   
 * **Want to change how the AI responds or how many flashcards it makes?**
-  Look in the Backend folder. specifically `backend/src/main/java/com/studyassistant/service/GeminiService.java`.
+  Look in the Backend folder. specifically `backend/src/main/java/com/studyassistant/service/GroqService.java`.
 
 * **Want to change the database or the Google API Key?**
   Look at `backend/src/main/resources/application.properties`. This file holds all your secret keys and configurations.

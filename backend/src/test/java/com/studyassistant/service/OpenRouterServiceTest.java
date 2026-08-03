@@ -16,19 +16,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GeminiServiceTest {
+class OpenRouterServiceTest {
 
     @Mock private NoteRepository noteRepository;
     @Mock private FlashcardRepository flashcardRepository;
     @Mock private QuizRepository quizRepository;
     @Mock private QuizQuestionRepository quizQuestionRepository;
-    @InjectMocks private GeminiService geminiService;
+    @InjectMocks private OpenRouterService openRouterService;
 
     @Test
     @DisplayName("Non-existent note ID throws ResourceNotFoundException")
     void nonExistentNoteThrowsException() {
         when(noteRepository.findById(999L)).thenReturn(Optional.empty());
-        assertThrows(Exception.class, () -> geminiService.generateStudyMaterials(999L));
+        assertThrows(Exception.class, () -> openRouterService.generateStudyMaterials(999L));
     }
 
     @Test
@@ -41,7 +41,7 @@ class GeminiServiceTest {
         when(noteRepository.findById(1L)).thenReturn(Optional.of(note));
 
         // Will fail at API call since no real API key - this verifies the flow up to API call
-        assertThrows(RuntimeException.class, () -> geminiService.generateStudyMaterials(1L));
+        assertThrows(RuntimeException.class, () -> openRouterService.generateStudyMaterials(1L));
         verify(noteRepository).findById(1L);
     }
 }

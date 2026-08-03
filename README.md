@@ -1,17 +1,17 @@
 # 🎓 AI Study Assistant
 
-A full-stack AI-powered student productivity platform. Upload lecture notes or paste any topic → Google Gemini AI generates summaries, flashcards, and quiz questions → take quizzes → track your progress over time.
+A full-stack AI-powered student productivity platform. Upload lecture notes or paste any topic → Groq AI generates summaries, flashcards, and quiz questions → take quizzes → track your progress over time.
 
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-green)
 ![React](https://img.shields.io/badge/React-18-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-blue)
-![Gemini AI](https://img.shields.io/badge/Gemini-1.5--flash-purple)
+![Groq AI](https://img.shields.io/badge/Groq-Llama--3-orange)
 
 ## ✨ Features
 
 - **📝 Note Management** — Paste text or upload PDF files
-- **🤖 AI-Powered Generation** — Gemini AI creates summaries, 10 flashcards, and 5 MCQ questions
+- **🤖 AI-Powered Generation** — Groq AI creates summaries, 10 flashcards, and 5 MCQ questions
 - **🃏 Interactive Flashcards** — Beautiful 3D CSS flip cards with navigation
 - **📋 Timed Quizzes** — 5-minute countdown, auto-submit on expiry
 - **📊 Progress Tracking** — Chart.js line graphs showing score trends over time
@@ -25,7 +25,7 @@ A full-stack AI-powered student productivity platform. Upload lecture notes or p
 | Java | 17+ |
 | Node.js | 18+ |
 | MySQL | 8.x |
-| Gemini API Key | [Get free key](https://aistudio.google.com/app/apikey) |
+| Groq API Key | [Get free key](https://console.groq.com/keys) |
 
 ## 🚀 Setup & Run
 
@@ -44,7 +44,7 @@ Edit `backend/src/main/resources/application.properties`:
 
 ```properties
 spring.datasource.password=your_mysql_password
-app.gemini.api.key=YOUR_GEMINI_API_KEY
+app.groq.api.key=YOUR_GROQ_API_KEY
 ```
 
 ### 3. Start Backend
@@ -132,10 +132,10 @@ cd backend
 ./mvnw test
 ```
 
-## 🔑 Getting a Gemini API Key
+## 🔑 Getting a Groq API Key
 
-1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Sign in with your Google account
+1. Go to [Groq Console](https://console.groq.com/keys)
+2. Sign in or create an account
 3. Click "Create API Key"
 4. Copy the key and add it to `application.properties`
 

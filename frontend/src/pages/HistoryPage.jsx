@@ -287,7 +287,7 @@ export default function HistoryPage() {
                                 key={fc.id}
                                 onClick={() => toggleFlip(idx)}
                                 title="Click to flip"
-                                style={{ perspective: '1000px', cursor: 'pointer', height: '160px' }}
+                                style={{ perspective: '1000px', cursor: 'pointer', height: '240px' }}
                               >
                                 <div style={{
                                   position: 'relative', width: '100%', height: '100%',
@@ -301,8 +301,10 @@ export default function HistoryPage() {
                                     background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)',
                                     borderRadius: '1rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                                   }}>
-                                    <p style={{ fontSize: '0.75rem', color: '#7c3aed', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Question {idx + 1}</p>
-                                    <p style={{ fontSize: '0.9rem', color: '#e2e8f0', margin: 0, lineHeight: 1.5 }}>{fc.question}</p>
+                                    <p style={{ fontSize: '0.75rem', color: '#7c3aed', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0, flexShrink: 0 }}>Question {idx + 1}</p>
+                                    <div style={{ flexGrow: 1, overflowY: 'auto', padding: '0.5rem 0', margin: '0.2rem 0' }}>
+                                      <p style={{ fontSize: '0.9rem', color: '#e2e8f0', margin: 0, lineHeight: 1.5 }}>{fc.question}</p>
+                                    </div>
                                     <p style={{ fontSize: '0.7rem', color: '#475569', margin: 0, textAlign: 'right' }}>Click to reveal answer →</p>
                                   </div>
                                   {/* Back */}
@@ -312,8 +314,10 @@ export default function HistoryPage() {
                                     background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)',
                                     borderRadius: '1rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                                   }}>
-                                    <p style={{ fontSize: '0.75rem', color: '#06b6d4', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Answer</p>
-                                    <p style={{ fontSize: '0.9rem', color: '#e2e8f0', margin: 0, lineHeight: 1.5 }}>{fc.answer}</p>
+                                    <p style={{ fontSize: '0.75rem', color: '#06b6d4', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0, flexShrink: 0 }}>Answer</p>
+                                    <div style={{ flexGrow: 1, overflowY: 'auto', padding: '0.5rem 0', margin: '0.2rem 0' }}>
+                                      <p style={{ fontSize: '0.9rem', color: '#e2e8f0', margin: 0, lineHeight: 1.5 }}>{fc.answer}</p>
+                                    </div>
                                     <p style={{ fontSize: '0.7rem', color: '#475569', margin: 0, textAlign: 'right' }}>← Click to flip back</p>
                                   </div>
                                 </div>

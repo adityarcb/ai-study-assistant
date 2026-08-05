@@ -72,11 +72,11 @@ export default function ProgressChart({ progressData }) {
     plugins: {
       legend: {
         display: datasets.length > 1,
-        position: 'top',
+        position: 'bottom',
         labels: {
           color: '#94a3b8',
           font: { family: 'Inter', size: 12 },
-          padding: 20,
+          padding: 15,
           usePointStyle: true,
           pointStyle: 'circle',
           boxWidth: 8,

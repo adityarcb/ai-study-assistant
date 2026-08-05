@@ -134,9 +134,9 @@ public class OpenRouterService {
                 Given the following lecture notes or topic, do three things:
 
                 1. Write a clear, concise summary of the topic in 3-5 paragraphs. The summary should cover the main concepts, key points, and important takeaways in plain readable English. Do NOT use bullet trees or flowcharts — write it as normal paragraphs.
-                2. Generate exactly 30 flashcards as a JSON array:
+                2. Generate exactly 10 flashcards as a JSON array:
                    [{"question": "...", "answer": "..."}]
-                3. Generate exactly 20 multiple choice quiz questions as a JSON array:
+                3. Generate exactly 5 multiple choice quiz questions as a JSON array:
                    [{"questionText": "...", "optionA": "...", "optionB": "...", "optionC": "...", "optionD": "...", "correctOption": "A"}]
 
                 Return ONLY valid JSON in this exact format, nothing else:

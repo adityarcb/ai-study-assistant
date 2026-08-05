@@ -35,7 +35,7 @@ export default function NotesPage() {
       formData.append('file', file);
       formData.append('title', title);
       const res = await API.post('/api/notes/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       });
       navigate(`/study/${res.data.noteId}`);
     } catch (err) {

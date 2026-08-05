@@ -9,13 +9,14 @@ Welcome to the **AI Study Assistant**! This document explains exactly how this p
 The AI Study Assistant is a full-stack web application designed to help students study faster and more effectively. 
 
 **What it does:**
-1. A user uploads their lecture notes, a PDF, or a PowerPoint (`.pptx`) file.
-2. The app reads the file and sends the text to Groq's Artificial Intelligence (Groq API).
+1. A user uploads their lecture notes, a PDF, or a PowerPoint (`.pptx`) file (or pastes text notes directly).
+2. The app extracts the text and sends it to the OpenRouter AI API.
 3. The AI reads the text and automatically creates:
-   - A detailed **Topic Flowchart** (to see how concepts connect).
-   - **10 interactive Flashcards** (for memorization).
-   - A **30-question Quiz** (to test knowledge).
-4. The user takes the quiz, and the app records their score so they can track their progress over time on a Dashboard.
+   - A clear, concise **Topic Summary** (covering key concepts and takeaways).
+   - Interactive **Flashcards** (for active recall & memorization).
+   - A **Multiple-Choice Quiz** (to test understanding).
+4. All generated materials (Summary, Flashcards, Quiz Q&A) are saved in the database under **Notes History** so students can revisit them anytime without regenerating.
+5. The user takes quizzes, and the app tracks their score and percentage on an interactive **Dashboard** and **Progress** page.
 
 ---
 
@@ -26,68 +27,72 @@ This project is built using modern, industry-standard tools. We can divide the p
 ### 1. The Frontend (The Face of the App)
 This is the part of the app you actually see and interact with in your web browser. 
 
-* **React (JavaScript):** React is the framework used to build the user interface. Instead of loading new web pages every time you click a button, React allows the page to update instantly (like flipping a flashcard).
-* **Tailwind CSS:** This handles all the styling. It gives us the beautiful dark mode, the glass-like cards, the blue/purple gradients, and the smooth hover animations.
-* **React Router:** Allows the user to navigate between different pages smoothly (like going from the Dashboard to the Upload page).
-* **Chart.js:** Used to draw the beautiful progress graphs on the Dashboard so students can see their test scores improving.
+* **React (JavaScript):** React is the framework used to build the user interface. Instead of loading new web pages every time you click a button, React allows the page to update instantly (like flipping a flashcard or switching tabs).
+* **Tailwind CSS:** Handles all the styling. It provides the modern Liquid Glass / Deep Aurora theme, glowing cards, glassmorphic glass cards, and smooth hover animations.
+* **React Router:** Allows the user to navigate between different pages smoothly (Dashboard, Upload Notes, Notes History, Progress, Study, Quiz).
+* **Chart.js:** Used to render interactive progress graphs on the Dashboard and Progress page so students can visualize their score history over time.
 
 ### 2. The Backend (The Engine Room)
-This is the hidden part of the app that does all the heavy lifting, security, and logic.
+This is the hidden part of the app that handles business logic, security, document processing, and AI integrations.
 
-* **Java & Spring Boot:** The backend is written in Java using the Spring Boot framework. Think of this as the manager of a restaurant. It receives requests from the frontend, decides what to do, talks to the database, and sends answers back.
-* **Spring Security & JWT:** Handles user logins safely. When a user logs in, they get a secure digital "key card" (a JWT token) that keeps them logged in.
-* **Apache PDFBox & Apache POI:** These are special tools the backend uses to open PDF and PowerPoint files and extract the raw text out of them.
+* **Java & Spring Boot 3:** The backend is written in Java using Spring Boot. It receives requests from the frontend, manages business logic, communicates with the database, and interfaces with AI services.
+* **Spring Security & JWT:** Handles secure user authentication. Upon login, a JSON Web Token (JWT) is issued to cryptographically authenticate all subsequent API requests.
+* **Apache PDFBox & Apache POI:** Tools used by the backend to open PDF and PowerPoint (`.pptx`) files and extract raw text from them.
 
 ### 3. The Database (The Filing Cabinet)
-* **H2 Database:** This is where we save users, passwords, flashcards, and quiz scores. H2 is an "in-memory" database, meaning it is super lightweight and saves the data directly to a folder in your project (`backend/data`). It requires zero complicated setup.
+* **H2 Database:** An embedded SQL database that saves users, notes, AI-generated summaries, flashcards, quizzes, questions, and attempt history into a local file directory (`backend/data`). It requires zero setup and is easy to deploy.
 
-### 4. The AI (The Brain)
-* **Groq API:** Once the backend extracts text from a file, it sends that text over the internet to Groq's AI servers using your secret API Key. The AI acts as a super-tutor, reading the text and generating the study materials.
+### 4. The AI Integration (The Brain)
+* **OpenRouter API:** The backend sends extracted note text to OpenRouter's AI API using a secret key. OpenRouter acts as an aggregator router, allowing the application to utilize free-tier LLMs (like Llama / Mistral models) to output structured JSON containing the summary, flashcards, and quiz questions.
 
 ---
 
 ## 🔄 How It Works: Step-by-Step
 
-Here is exactly what happens when you click "Generate Study Materials":
+Here is exactly what happens when you click "Upload & Generate Study Materials":
 
 ```mermaid
 sequenceDiagram
     participant User
     participant Frontend as React Frontend
     participant Backend as Spring Boot Backend
-    participant AI as Groq AI
+    participant AI as OpenRouter AI
     participant DB as H2 Database
 
-    User->>Frontend: Uploads "Biology.pdf" & clicks Generate
-    Frontend->>Backend: Sends the PDF file securely
-    Backend->>Backend: Extracts text from the PDF using PDFBox
-    Backend->>AI: Sends extracted text: "Make flashcards and a quiz!"
-    AI-->>Backend: Replies with JSON (Flowchart, Flashcards, Quiz)
-    Backend->>DB: Saves the AI data so it's permanently stored
-    Backend-->>Frontend: Sends the saved study materials back
-    Frontend-->>User: Displays the beautiful Flashcards and Quiz UI!
+    User->>Frontend: Uploads "BigData.pptx" & clicks Generate
+    Frontend->>Backend: Sends file securely via FormData
+    Backend->>Backend: Extracts text using Apache POI / PDFBox
+    Backend->>DB: Saves Note (Title & Content)
+    Backend->>AI: Sends text prompt: "Generate Summary, Flashcards, Quiz JSON"
+    AI-->>Backend: Replies with structured JSON
+    Backend->>DB: Stores Summary in Note, saves Flashcards & Quiz Q&A
+    Backend-->>Frontend: Returns saved study materials
+    Frontend-->>User: Displays Summary, Flashcards, and Quiz UI
 ```
 
-1. **Upload:** You drag and drop a file on the Frontend.
-2. **Transit:** The Frontend sends that file to the Backend.
-3. **Reading:** The Backend cracks open the file and pulls out the words.
-4. **AI Generation:** The Backend sends the words to Groq AI and says: *"Follow these strict rules: Give me a flowchart, exactly 10 flashcards, and exactly 30 quiz questions."*
-5. **Saving:** Groq AI replies with the homework. The Backend saves this into the H2 Database.
-6. **Display:** The Backend hands the data back to the Frontend, which renders the nice-looking flashcards on your screen.
+1. **Upload / Input:** You paste text or drag-and-drop a PDF/PPTX file on the **Upload Notes** page.
+2. **Text Extraction:** The Backend extracts the raw text from the document.
+3. **AI Generation:** The Backend formats a structured prompt and sends it to OpenRouter AI.
+4. **Data Persistence:** The AI returns JSON containing the Summary, Flashcards, and Quiz Questions. The Backend saves the Summary to the `Note` entity, inserts the `Flashcard` records, and creates the `Quiz` & `QuizQuestion` records in H2.
+5. **Notes History & Learning:** The student can view the generated study materials immediately, retake the quiz anytime, or view past notes on the **Notes History** page without needing to call the AI again.
 
 ---
 
 ## 🎨 Where to Find Things in the Code
 
-If you ever want to change how the app works or looks, here is your cheat sheet:
+* **Frontend UI Pages:** `frontend/src/pages/`
+  - `DashboardPage.jsx`: Stats summary & Chart.js score history graph.
+  - `NotesPage.jsx`: Page to upload PDFs/PPTXs or paste text notes.
+  - `HistoryPage.jsx`: Interactive history page showing past notes, stored summaries, flashcards, and quiz Q&A.
+  - `StudyPage.jsx`: View newly generated AI study materials.
+  - `QuizPage.jsx` & `ResultPage.jsx`: Interactive quiz interface & score calculation.
+  - `ProgressPage.jsx`: Detailed quiz performance history and pagination.
 
-* **Want to change colors, buttons, or layouts?**
-  Look in the Frontend folder. `frontend/tailwind.config.js` controls the main colors, `frontend/src/styles/index.css` has custom CSS, and the actual screens are in `frontend/src/pages/`.
-  
-* **Want to change how the AI responds or how many flashcards it makes?**
-  Look in the Backend folder. specifically `backend/src/main/java/com/studyassistant/service/GroqService.java`.
+* **Backend Services & Controllers:** `backend/src/main/java/com/studyassistant/`
+  - `service/OpenRouterService.java`: AI prompt engineering, API call, JSON parsing, and saving materials.
+  - `service/NoteService.java`: File parsing (PDF/PPTX) and retrieving stored materials for Notes History.
+  - `controller/NoteController.java`: API endpoints for creating, retrieving, and fetching notes history.
 
-* **Want to change the database or the Google API Key?**
-  Look at `backend/src/main/resources/application.properties`. This file holds all your secret keys and configurations.
-
-Enjoy building and expanding your AI Study Assistant!
+* **Configuration & Environment Variables:**
+  - `backend/src/main/resources/application.properties`: Local configuration and fallback values.
+  - `backend/src/main/resources/application-prod.yml`: Production configuration for Render deployment (`OPENROUTER_API_KEY`, `ALLOWED_ORIGIN`).

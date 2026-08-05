@@ -120,7 +120,7 @@ public class OpenRouterService {
                 You are an expert study assistant.
                 Given the following lecture notes or topic, do three things:
 
-                1. Create a one-page flowchart-like tree structure with short descriptions for each topic and subtopic, representing the core concepts. Use markdown bullet points and indentation to format it cleanly.
+                1. Write a clear, concise summary of the topic in 3-5 paragraphs. The summary should cover the main concepts, key points, and important takeaways in plain readable English. Do NOT use bullet trees or flowcharts — write it as normal paragraphs.
                 2. Generate exactly 5 flashcards as a JSON array:
                    [{"question": "...", "answer": "..."}]
                 3. Generate exactly 5 multiple choice quiz questions as a JSON array:

@@ -53,11 +53,13 @@ export default function StudyPage() {
       <section className="mb-12 animate-fade-in">
         <h2 className="text-2xl font-bold text-surface-100 mb-4 flex items-center gap-2">
           <span className="w-8 h-8 rounded-lg bg-primary-500/20 flex items-center justify-center text-sm">📖</span>
-          Topic Flowchart
+          Summary
         </h2>
         <div className="glass-card p-6 sm:p-8">
-          <div className="text-surface-300 leading-relaxed whitespace-pre-wrap font-mono text-sm bg-surface-800/50 p-6 rounded-xl border border-surface-700/50">
-            {data.summary}
+          <div className="text-surface-300 leading-relaxed" style={{ fontSize: '0.95rem', lineHeight: '1.85' }}>
+            {data.summary.split('\n').filter(p => p.trim()).map((para, i) => (
+              <p key={i} style={{ marginBottom: '1rem' }}>{para}</p>
+            ))}
           </div>
         </div>
       </section>

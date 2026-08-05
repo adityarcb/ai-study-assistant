@@ -48,25 +48,33 @@ export default function QuizPage() {
   const current = questions[currentIndex];
   const isLast = currentIndex === questions.length - 1;
   const progress = ((currentIndex + 1) / questions.length) * 100;
+  const answeredCount = Object.keys(answers).length;
+  const totalQuestions = questions.length;
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-surface-100">Quiz Time</h1>
-          <p className="text-surface-400 text-sm">Question {currentIndex + 1} of {questions.length}</p>
+          <p className="text-surface-400 text-sm">
+            Question {currentIndex + 1} of {totalQuestions}
+            &nbsp;·&nbsp;
+            <span style={{ color: answeredCount === totalQuestions ? '#4ade80' : '#a78bfa' }}>
+              {answeredCount}/{totalQuestions} answered
+            </span>
+          </p>
         </div>
-        <Timer totalSeconds={300} onTimeUp={handleSubmit} />
+        <Timer totalSeconds={1500} onTimeUp={handleSubmit} />
       </div>
 
       {/* Progress bar */}
-      <div className="progress-bar mb-8">
+      <div className="progress-bar mb-6">
         <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
       </div>
 
       {/* Question */}
-      <div className="glass-card p-6 sm:p-8 mb-8">
+      <div className="glass-card p-6 sm:p-8 mb-6">
         <QuizQuestionComp
           question={current}
           selectedOption={answers[current.id]}
@@ -76,7 +84,7 @@ export default function QuizPage() {
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center gap-3">
         <button
           onClick={() => setCurrentIndex((p) => Math.max(0, p - 1))}
           disabled={currentIndex === 0}
@@ -85,16 +93,49 @@ export default function QuizPage() {
           ← Previous
         </button>
 
-        {isLast ? (
-          <button onClick={handleSubmit} disabled={submitting} className="btn-primary flex items-center gap-2">
-            {submitting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
+        <div className="flex gap-3">
+          {/* Submit always visible */}
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="btn-primary flex items-center gap-2"
+            style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 4px 14px rgba(22,163,74,0.35)' }}
+          >
+            {submitting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : '✅'}
             Submit Quiz
           </button>
-        ) : (
-          <button onClick={() => setCurrentIndex((p) => p + 1)} className="btn-primary">
-            Next →
+
+          {/* Next only if not on last */}
+          {!isLast && (
+            <button onClick={() => setCurrentIndex((p) => p + 1)} className="btn-primary">
+              Next →
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Question dots navigator */}
+      <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center' }}>
+        {questions.map((q, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentIndex(idx)}
+            title={`Question ${idx + 1}`}
+            style={{
+              width: '32px', height: '32px', borderRadius: '50%', border: 'none', cursor: 'pointer',
+              fontSize: '0.7rem', fontWeight: 600, transition: 'all 0.15s',
+              background: idx === currentIndex
+                ? 'linear-gradient(135deg, #7c3aed, #06b6d4)'
+                : answers[q.id]
+                ? 'rgba(124,58,237,0.35)'
+                : 'rgba(255,255,255,0.07)',
+              color: idx === currentIndex ? 'white' : answers[q.id] ? '#c4b5fd' : '#64748b',
+              boxShadow: idx === currentIndex ? '0 2px 10px rgba(124,58,237,0.5)' : 'none',
+            }}
+          >
+            {idx + 1}
           </button>
-        )}
+        ))}
       </div>
     </div>
   );

@@ -39,7 +39,7 @@ export default function NotesPage() {
       });
       navigate(`/study/${res.data.noteId}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to upload PDF');
+      setError(err.response?.data?.message || 'Failed to upload document');
     } finally { setLoading(false); }
   };
 

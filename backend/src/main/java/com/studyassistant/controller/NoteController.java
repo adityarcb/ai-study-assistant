@@ -65,6 +65,13 @@ public class NoteController {
         return ResponseEntity.ok(buildNoteResponse(note));
     }
 
+    @GetMapping("/{noteId}/study-materials")
+    @Operation(summary = "Get stored study materials (flashcards + quiz Q&A with answers) for a note")
+    public ResponseEntity<Map<String, Object>> getStudyMaterials(@PathVariable Long noteId) {
+        Map<String, Object> materials = noteService.getStoredStudyMaterials(noteId);
+        return ResponseEntity.ok(materials);
+    }
+
     private Map<String, Object> buildNoteResponse(Note note) {
         Map<String, Object> map = new HashMap<>();
         map.put("noteId", note.getId());

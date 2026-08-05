@@ -13,7 +13,8 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/dashboard', label: 'Dashboard' },
-    { to: '/notes',     label: 'Notes' },
+    { to: '/notes',     label: 'Upload Notes' },
+    { to: '/history',   label: 'Notes History' },
     { to: '/progress',  label: 'Progress' },
   ];
 

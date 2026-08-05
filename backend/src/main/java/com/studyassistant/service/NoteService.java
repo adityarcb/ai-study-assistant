@@ -1,9 +1,15 @@
 package com.studyassistant.service;
 
 import com.studyassistant.exception.ResourceNotFoundException;
+import com.studyassistant.model.Flashcard;
 import com.studyassistant.model.Note;
+import com.studyassistant.model.Quiz;
+import com.studyassistant.model.QuizQuestion;
 import com.studyassistant.model.Student;
+import com.studyassistant.repository.FlashcardRepository;
 import com.studyassistant.repository.NoteRepository;
+import com.studyassistant.repository.QuizQuestionRepository;
+import com.studyassistant.repository.QuizRepository;
 import com.studyassistant.repository.StudentRepository;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -12,17 +18,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class NoteService {
 
     private final NoteRepository noteRepository;
     private final StudentRepository studentRepository;
+    private final FlashcardRepository flashcardRepository;
+    private final QuizRepository quizRepository;
+    private final QuizQuestionRepository quizQuestionRepository;
 
-    public NoteService(NoteRepository noteRepository, StudentRepository studentRepository) {
+    public NoteService(NoteRepository noteRepository, StudentRepository studentRepository,
+                       FlashcardRepository flashcardRepository, QuizRepository quizRepository,
+                       QuizQuestionRepository quizQuestionRepository) {
         this.noteRepository = noteRepository;
         this.studentRepository = studentRepository;
+        this.flashcardRepository = flashcardRepository;
+        this.quizRepository = quizRepository;
+        this.quizQuestionRepository = quizQuestionRepository;
     }
 
     public Note saveTextNote(String email, String title, String content) {
@@ -66,6 +84,54 @@ public class NoteService {
         return noteRepository.countByStudentId(student.getId());
     }
 
+    public Map<String, Object> getStoredStudyMaterials(Long noteId) {
+        // Verify note exists
+        noteRepository.findById(noteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + noteId));
+
+        Map<String, Object> result = new HashMap<>();
+
+        // Fetch flashcards
+        List<Flashcard> flashcards = flashcardRepository.findByNoteId(noteId);
+        List<Map<String, Object>> flashcardList = new ArrayList<>();
+        for (Flashcard fc : flashcards) {
+            Map<String, Object> fcMap = new HashMap<>();
+            fcMap.put("id", fc.getId());
+            fcMap.put("question", fc.getQuestion());
+            fcMap.put("answer", fc.getAnswer());
+            flashcardList.add(fcMap);
+        }
+        result.put("flashcards", flashcardList);
+        result.put("hasFlashcards", !flashcardList.isEmpty());
+
+        // Fetch quiz questions (with correct answers — this is the history view)
+        Optional<Quiz> quizOpt = quizRepository.findByNoteId(noteId);
+        if (quizOpt.isPresent()) {
+            Quiz quiz = quizOpt.get();
+            List<QuizQuestion> questions = quizQuestionRepository.findByQuizId(quiz.getId());
+            List<Map<String, Object>> questionList = new ArrayList<>();
+            for (QuizQuestion q : questions) {
+                Map<String, Object> qMap = new HashMap<>();
+                qMap.put("id", q.getId());
+                qMap.put("questionText", q.getQuestionText());
+                qMap.put("optionA", q.getOptionA());
+                qMap.put("optionB", q.getOptionB());
+                qMap.put("optionC", q.getOptionC());
+                qMap.put("optionD", q.getOptionD());
+                qMap.put("correctOption", q.getCorrectOption());
+                questionList.add(qMap);
+            }
+            result.put("questions", questionList);
+            result.put("quizId", quiz.getId());
+            result.put("hasQuiz", !questionList.isEmpty());
+        } else {
+            result.put("questions", new ArrayList<>());
+            result.put("hasQuiz", false);
+        }
+
+        return result;
+    }
+
     private String extractFileText(MultipartFile file) {
         String filename = file.getOriginalFilename();
         if (filename != null && filename.toLowerCase().endsWith(".pdf")) {
@@ -107,4 +173,52 @@ public class NoteService {
             throw new RuntimeException("Failed to extract text from PowerPoint. Ensure it is a valid .pptx file: " + e.getMessage());
         }
     }
+
+    public Map<String, Object> getStoredStudyMaterials(Long noteId) {
+        noteRepository.findById(noteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + noteId));
+
+        Map<String, Object> result = new HashMap<>();
+
+        // Flashcards
+        List<Flashcard> flashcards = flashcardRepository.findByNoteId(noteId);
+        List<Map<String, Object>> flashcardList = new ArrayList<>();
+        for (Flashcard fc : flashcards) {
+            Map<String, Object> fcMap = new HashMap<>();
+            fcMap.put("id", fc.getId());
+            fcMap.put("question", fc.getQuestion());
+            fcMap.put("answer", fc.getAnswer());
+            flashcardList.add(fcMap);
+        }
+        result.put("flashcards", flashcardList);
+        result.put("hasFlashcards", !flashcardList.isEmpty());
+
+        // Quiz questions with correct answers (history view)
+        Optional<Quiz> quizOpt = quizRepository.findByNoteId(noteId);
+        if (quizOpt.isPresent()) {
+            Quiz quiz = quizOpt.get();
+            List<QuizQuestion> questions = quizQuestionRepository.findByQuizId(quiz.getId());
+            List<Map<String, Object>> questionList = new ArrayList<>();
+            for (QuizQuestion q : questions) {
+                Map<String, Object> qMap = new HashMap<>();
+                qMap.put("id", q.getId());
+                qMap.put("questionText", q.getQuestionText());
+                qMap.put("optionA", q.getOptionA());
+                qMap.put("optionB", q.getOptionB());
+                qMap.put("optionC", q.getOptionC());
+                qMap.put("optionD", q.getOptionD());
+                qMap.put("correctOption", q.getCorrectOption());
+                questionList.add(qMap);
+            }
+            result.put("questions", questionList);
+            result.put("quizId", quiz.getId());
+            result.put("hasQuiz", !questionList.isEmpty());
+        } else {
+            result.put("questions", new ArrayList<>());
+            result.put("hasQuiz", false);
+        }
+
+        return result;
+    }
 }
+

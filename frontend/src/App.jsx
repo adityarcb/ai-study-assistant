@@ -10,6 +10,7 @@ import StudyPage from './pages/StudyPage';
 import QuizPage from './pages/QuizPage';
 import ResultPage from './pages/ResultPage';
 import ProgressPage from './pages/ProgressPage';
+import HistoryPage from './pages/HistoryPage';
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/quiz/:quizId" element={<ProtectedRoute><QuizPage /></ProtectedRoute>} />
           <Route path="/result/:quizId" element={<ProtectedRoute><ResultPage /></ProtectedRoute>} />
           <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
+          <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

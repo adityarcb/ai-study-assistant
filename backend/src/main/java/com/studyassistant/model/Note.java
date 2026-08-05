@@ -21,6 +21,9 @@ public class Note {
     @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
+    @Column(columnDefinition = "LONGTEXT")
+    private String summary;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -48,6 +51,9 @@ public class Note {
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
+
+    public String getSummary() { return summary; }
+    public void setSummary(String summary) { this.summary = summary; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

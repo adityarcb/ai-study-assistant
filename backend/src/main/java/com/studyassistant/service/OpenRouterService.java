@@ -57,8 +57,21 @@ public class OpenRouterService {
         try {
             JsonNode root = objectMapper.readTree(jsonContent);
 
-            // Parse summary
+            // Parse and save summary directly onto the Note
             String summary = root.get("summary").asText();
+            note.setSummary(summary);
+            noteRepository.save(note);
+
+            // Clean up any existing flashcards or quizzes for this note before saving new ones
+            List<Flashcard> existingFc = flashcardRepository.findByNoteId(noteId);
+            if (!existingFc.isEmpty()) {
+                flashcardRepository.deleteAll(existingFc);
+            }
+            quizRepository.findByNoteId(noteId).ifPresent(existingQuiz -> {
+                List<QuizQuestion> existingQq = quizQuestionRepository.findByQuizId(existingQuiz.getId());
+                quizQuestionRepository.deleteAll(existingQq);
+                quizRepository.delete(existingQuiz);
+            });
 
             // Parse and save flashcards
             List<FlashcardDTO> flashcardDTOs = new ArrayList<>();

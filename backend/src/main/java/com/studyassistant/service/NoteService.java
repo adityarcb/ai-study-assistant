@@ -86,10 +86,13 @@ public class NoteService {
 
     public Map<String, Object> getStoredStudyMaterials(Long noteId) {
         // Verify note exists
-        noteRepository.findById(noteId)
+        Note note = noteRepository.findById(noteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + noteId));
 
         Map<String, Object> result = new HashMap<>();
+        result.put("summary", note.getSummary());
+        result.put("content", note.getContent());
+        result.put("hasSummary", note.getSummary() != null && !note.getSummary().trim().isEmpty());
 
         // Fetch flashcards
         List<Flashcard> flashcards = flashcardRepository.findByNoteId(noteId);

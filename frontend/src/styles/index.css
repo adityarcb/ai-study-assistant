@@ -61,6 +61,8 @@
       0 1px 0 rgba(255, 255, 255, 0.08) inset,
       0 -1px 0 rgba(0, 0, 0, 0.2) inset;
     overflow: hidden;
+    -webkit-mask-image: -webkit-radial-gradient(white, black); /* Fix Safari border-radius clipping */
+    transform: translateZ(0); /* Force GPU acceleration */
     transition: all 0.3s ease;
   }
 
@@ -84,7 +86,7 @@
       0 8px 40px rgba(0, 0, 0, 0.4),
       0 0 0 1px rgba(139, 92, 246, 0.15) inset,
       0 1px 0 rgba(255, 255, 255, 0.10) inset;
-    transform: translateY(-2px);
+    transform: translateY(-2px) translateZ(0);
   }
 
   /* Glowing variant */
@@ -98,9 +100,10 @@
 
   .glass-card-hover {
     @apply glass-card transition-all duration-300;
+    transform: translateZ(0);
   }
   .glass-card-hover:hover {
-    transform: translateY(-3px);
+    transform: translateY(-3px) translateZ(0);
     border-color: rgba(139, 92, 246, 0.35);
     box-shadow:
       0 12px 48px rgba(0, 0, 0, 0.4),

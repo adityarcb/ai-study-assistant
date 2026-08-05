@@ -26,10 +26,12 @@ function StatCard({ label, value, icon, gradientFrom, gradientTo, glowColor }) {
       textAlign: 'center',
       boxShadow: `0 4px 24px rgba(0,0,0,0.3), 0 0 40px ${glowColor}14`,
       overflow: 'hidden',
+      WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+      transform: 'translateZ(0)',
       transition: 'all 0.3s ease',
     }}
-      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow=`0 12px 40px rgba(0,0,0,0.4), 0 0 60px ${glowColor}28`; e.currentTarget.style.borderColor=`${glowColor}40`; }}
-      onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow=`0 4px 24px rgba(0,0,0,0.3), 0 0 40px ${glowColor}14`; e.currentTarget.style.borderColor='rgba(255,255,255,0.09)'; }}
+      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px) translateZ(0)'; e.currentTarget.style.boxShadow=`0 12px 40px rgba(0,0,0,0.4), 0 0 60px ${glowColor}28`; e.currentTarget.style.borderColor=`${glowColor}40`; }}
+      onMouseLeave={e => { e.currentTarget.style.transform='translateY(0) translateZ(0)'; e.currentTarget.style.boxShadow=`0 4px 24px rgba(0,0,0,0.3), 0 0 40px ${glowColor}14`; e.currentTarget.style.borderColor='rgba(255,255,255,0.09)'; }}
     >
       {/* Top shimmer */}
       <div style={{

@@ -105,6 +105,8 @@ public class NoteService {
             fcMap.put("id", fc.getId());
             fcMap.put("question", fc.getQuestion());
             fcMap.put("answer", fc.getAnswer());
+            fcMap.put("boxLevel", fc.getBoxLevel());
+            fcMap.put("nextReviewDate", fc.getNextReviewDate());
             flashcardList.add(fcMap);
         }
         result.put("flashcards", flashcardList);

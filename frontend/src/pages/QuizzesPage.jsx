@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import { formatDateTime } from '../utils/formatDate';
+import { stripQuestionFields } from '../utils/quizUtils';
 
 export default function QuizzesPage() {
   const navigate = useNavigate();
@@ -15,7 +17,7 @@ export default function QuizzesPage() {
       const res = await API.get(`/api/notes/${quiz.noteId}/study-materials`);
       const { questions, quizId } = res.data;
       if (questions?.length) {
-        const stripped = questions.map(({ id, questionText, optionA, optionB, optionC, optionD }) => ({ id, questionText, optionA, optionB, optionC, optionD }));
+        const stripped = stripQuestionFields(questions);
         navigate(`/quiz/${quizId || quiz.quizId}`, { state: { questions: stripped } });
       }
     } catch (err) {
@@ -37,11 +39,6 @@ export default function QuizzesPage() {
     };
     fetchHistory();
   }, []);
-
-  const formatDate = (dt) => {
-    if (!dt) return '';
-    return new Date(dt).toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
-  };
 
   const average = attempts.length > 0
     ? (attempts.reduce((sum, a) => sum + Number(a.percentage), 0) / attempts.length).toFixed(1)
@@ -121,7 +118,7 @@ export default function QuizzesPage() {
                       <p style={{ fontSize: '0.95rem', fontWeight: 600, color: '#e2e8f0', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {a.noteTitle}
                       </p>
-                      <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '0.15rem 0 0' }}>{formatDate(a.attemptedAt)}</p>
+                      <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '0.15rem 0 0' }}>{formatDateTime(a.attemptedAt)}</p>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>

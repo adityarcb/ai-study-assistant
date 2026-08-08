@@ -10,6 +10,7 @@ export default function Sidebar({ open, onClose }) {
     { to: '/quizzes', label: 'Quizzes', icon: '📝' },
     { to: '/flashcards', label: 'Flashcards', icon: '🃏' },
     { to: '/progress', label: 'Progress', icon: '📈' },
+    { to: '/analytics', label: 'Analytics', icon: '📊' },
     { to: '/achievements', label: 'Achievements', icon: '🏆' },
     { to: '/settings', label: 'Settings', icon: '⚙️' },
   ];

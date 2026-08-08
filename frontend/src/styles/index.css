@@ -467,6 +467,7 @@
   .dashboard-grid-2col { grid-template-columns: 1fr !important; }
 }
 @media (max-width: 900px) {
+  .analytics-2col { grid-template-columns: 1fr !important; }
   .two-panel-grid { grid-template-columns: 1fr !important; }
   .sidebar-note-list { grid-template-columns: 1fr !important; }
   .sidebar-note-list > div:first-child { position: static !important; width: 100% !important; max-height: none !important; }

@@ -1,10 +1,13 @@
 package com.studyassistant.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "flashcards")
 public class Flashcard {
+
+    public static final int MAX_BOX = 5;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +22,12 @@ public class Flashcard {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String answer;
+
+    @Column(name = "box_level", nullable = false)
+    private Integer boxLevel = 1;
+
+    @Column(name = "next_review_date", nullable = false)
+    private LocalDateTime nextReviewDate = LocalDateTime.now();
 
     public Flashcard() {}
 
@@ -39,4 +48,10 @@ public class Flashcard {
 
     public String getAnswer() { return answer; }
     public void setAnswer(String answer) { this.answer = answer; }
+
+    public Integer getBoxLevel() { return boxLevel; }
+    public void setBoxLevel(Integer boxLevel) { this.boxLevel = boxLevel; }
+
+    public LocalDateTime getNextReviewDate() { return nextReviewDate; }
+    public void setNextReviewDate(LocalDateTime nextReviewDate) { this.nextReviewDate = nextReviewDate; }
 }

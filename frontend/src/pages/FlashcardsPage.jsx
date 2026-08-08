@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import { formatDate } from '../utils/formatDate';
 
 export default function FlashcardsPage() {
   const navigate = useNavigate();
@@ -11,6 +12,17 @@ export default function FlashcardsPage() {
   const [flipped, setFlipped] = useState({});
   const [loadingNotes, setLoadingNotes] = useState(true);
   const [loadingCards, setLoadingCards] = useState(false);
+  const [dueCards, setDueCards] = useState([]);
+  const [reviewMode, setReviewMode] = useState(false);
+  const [reviewFlipped, setReviewFlipped] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+
+  const fetchDueCards = async () => {
+    try {
+      const res = await API.get('/api/flashcards/due');
+      setDueCards(res.data || []);
+    } catch { setDueCards([]); }
+  };
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -24,6 +36,7 @@ export default function FlashcardsPage() {
       }
     };
     fetchNotes();
+    fetchDueCards();
   }, []);
 
   const handleSelectNote = async (note) => {
@@ -31,6 +44,7 @@ export default function FlashcardsPage() {
     setFlashcards([]);
     setHasFlashcards(false);
     setFlipped({});
+    setReviewMode(false);
     setLoadingCards(true);
     try {
       const res = await API.get(`/api/notes/${note.noteId}/study-materials`);
@@ -43,9 +57,19 @@ export default function FlashcardsPage() {
     }
   };
 
-  const formatDate = (dt) => {
-    if (!dt) return '';
-    return new Date(dt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  const handleReview = async (correct) => {
+    const card = dueCards[0];
+    if (!card) { setReviewMode(false); return; }
+    setReviewError('');
+    try {
+      const res = await API.post('/api/flashcards/review', { flashcardId: card.id, correct });
+      const updated = res.data;
+      setDueCards(prev => prev.filter(c => c.id !== updated.id));
+      setFlashcards(prev => prev.map(f => f.id === updated.id ? { ...f, boxLevel: updated.boxLevel, nextReviewDate: updated.nextReviewDate } : f));
+      setReviewFlipped(false);
+    } catch (err) {
+      setReviewError(err.response?.data?.message || 'Failed to save review');
+    }
   };
 
   return (
@@ -54,7 +78,130 @@ export default function FlashcardsPage() {
         <h1 style={{ fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(135deg, #a78bfa, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           🃏 Flashcards
         </h1>
-        <p style={{ color: '#64748b', marginTop: '0.4rem' }}>Select a note to review its flashcards. Click a card to flip it.</p>
+        <p style={{ color: '#64748b', marginTop: '0.4rem' }}>Spaced repetition (Leitner boxes) — review cards daily to move them to higher boxes and longer intervals.</p>
+      </div>
+
+      {/* Spaced repetition review panel */}
+      <div style={{ marginBottom: '1.5rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '1.25rem' }}>
+        {!reviewMode && dueCards.length === 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{ fontSize: '1.5rem' }}>✅</span>
+              <div>
+                <p style={{ fontSize: '0.95rem', fontWeight: 600, color: '#e2e8f0', margin: 0 }}>No cards due for review</p>
+                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0.15rem 0 0' }}>All caught up! New cards are due as their review interval expires.</p>
+              </div>
+            </div>
+            {flashcards.length > 0 && (
+              <button
+                onClick={() => setReviewMode(true)}
+                className="btn-primary"
+                style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+              >
+                Browse all cards →
+              </button>
+            )}
+          </div>
+        )}
+
+        {!reviewMode && dueCards.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{ fontSize: '1.5rem' }}>⏰</span>
+              <div>
+                <p style={{ fontSize: '0.95rem', fontWeight: 600, color: '#e2e8f0', margin: 0 }}>{dueCards.length} card{dueCards.length !== 1 ? 's' : ''} due for review</p>
+                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0.15rem 0 0' }}>Answer correctly to move cards up the Leitner boxes</p>
+              </div>
+            </div>
+            <button
+              onClick={() => { setReviewMode(true); setReviewFlipped(false); }}
+              className="btn-primary"
+              style={{ padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}
+            >
+              Start review →
+            </button>
+          </div>
+        )}
+
+        {reviewMode && dueCards.length > 0 && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <p style={{ fontSize: '0.9rem', fontWeight: 600, color: '#e2e8f0', margin: 0 }}>
+                Reviewing card 1 of {dueCards.length}
+              </p>
+              <button onClick={() => setReviewMode(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.85rem' }}>
+                Exit review ✕
+              </button>
+            </div>
+            <div
+              onClick={() => setReviewFlipped(!reviewFlipped)}
+              title="Click to flip"
+              style={{ perspective: '1000px', cursor: 'pointer', height: '260px', maxWidth: '560px', margin: '0 auto' }}
+            >
+              <div style={{
+                position: 'relative', width: '100%', height: '100%',
+                transformStyle: 'preserve-3d',
+                transform: reviewFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                transition: 'transform 0.5s cubic-bezier(0.4,0,0.2,1)',
+              }}>
+                <div style={{
+                  position: 'absolute', inset: 0, backfaceVisibility: 'hidden',
+                  background: 'linear-gradient(135deg, rgba(91,33,182,0.4), rgba(6,182,212,0.2))',
+                  border: '1px solid rgba(139,92,246,0.4)',
+                  borderRadius: '1rem', padding: '1.5rem',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
+                }}>
+                  <p style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 0.75rem' }}>Question</p>
+                  <p style={{ fontSize: '1.05rem', color: '#ede9fe', margin: 0, lineHeight: 1.6 }}>{dueCards[0].question}</p>
+                  <p style={{ fontSize: '0.7rem', color: '#475569', marginTop: '1rem' }}>Click to flip</p>
+                </div>
+                <div style={{
+                  position: 'absolute', inset: 0, backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                  background: 'linear-gradient(135deg, rgba(6,182,212,0.3), rgba(16,185,129,0.2))',
+                  border: '1px solid rgba(56,189,248,0.35)',
+                  borderRadius: '1rem', padding: '1.5rem',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
+                }}>
+                  <p style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 0.75rem' }}>Answer</p>
+                  <p style={{ fontSize: '1rem', color: '#f0f9ff', margin: 0, lineHeight: 1.6 }}>{dueCards[0].answer}</p>
+                </div>
+              </div>
+            </div>
+            {reviewError && <p style={{ color: '#f87171', fontSize: '0.85rem', textAlign: 'center', marginTop: '0.75rem' }}>{reviewError}</p>}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.25rem' }}>
+              <button
+                onClick={() => handleReview(false)}
+                style={{
+                  padding: '0.6rem 1.75rem', borderRadius: '12px', border: '1px solid rgba(244,63,94,0.4)',
+                  background: 'rgba(244,63,94,0.1)', color: '#fb7185', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem',
+                }}
+              >
+                🔄 Still learning
+              </button>
+              <button
+                onClick={() => handleReview(true)}
+                style={{
+                  padding: '0.6rem 1.75rem', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.4)',
+                  background: 'rgba(16,185,129,0.1)', color: '#34d399', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem',
+                }}
+              >
+                ✓ Got it
+              </button>
+            </div>
+          </div>
+        )}
+
+        {reviewMode && dueCards.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '1.5rem' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎉</div>
+            <p style={{ color: '#e2e8f0', fontWeight: 600, margin: '0 0 0.25rem' }}>Review complete!</p>
+            <p style={{ color: '#64748b', fontSize: '0.85rem', margin: '0 0 1rem' }}>All due cards reviewed. Check back tomorrow for the next round.</p>
+            <button onClick={() => setReviewMode(false)} className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
+              Done
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="sidebar-note-list" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem', alignItems: 'start' }}>
@@ -151,7 +298,19 @@ export default function FlashcardsPage() {
                       border: '1px solid rgba(139,92,246,0.35)',
                       borderRadius: '1rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                     }}>
-                      <p style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0, flexShrink: 0 }}>Question {idx + 1}</p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                        <p style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Question {idx + 1}</p>
+                        <span
+                          title="Leitner box level — higher = longer review interval"
+                          style={{
+                            fontSize: '0.7rem', fontWeight: 700, color: '#c4b5fd',
+                            background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(139,92,246,0.3)',
+                            borderRadius: '99px', padding: '0.15rem 0.6rem',
+                          }}
+                        >
+                          Box {fc.boxLevel || 1}/5
+                        </span>
+                      </div>
                       <div style={{ flexGrow: 1, overflowY: 'auto', padding: '0.5rem 0', margin: '0.2rem 0' }}>
                         <p style={{ fontSize: '0.9rem', color: '#ede9fe', margin: 0, lineHeight: 1.5 }}>{fc.question}</p>
                       </div>

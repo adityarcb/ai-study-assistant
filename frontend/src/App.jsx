@@ -10,6 +10,7 @@ import StudyPage from './pages/StudyPage';
 import QuizPage from './pages/QuizPage';
 import ResultPage from './pages/ResultPage';
 import ProgressPage from './pages/ProgressPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 import HistoryPage from './pages/HistoryPage';
 import QuizzesPage from './pages/QuizzesPage';
 import FlashcardsPage from './pages/FlashcardsPage';
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/quizzes" element={<QuizzesPage />} />
             <Route path="/flashcards" element={<FlashcardsPage />} />
             <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>

@@ -15,4 +15,7 @@ public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
 
     @Query("SELECT COUNT(f) FROM Flashcard f WHERE f.note.student.id = :studentId")
     long countByStudentId(@Param("studentId") Long studentId);
+
+    @Query("SELECT f FROM Flashcard f WHERE f.note.student.id = :studentId AND f.nextReviewDate <= :now ORDER BY f.nextReviewDate ASC")
+    List<Flashcard> findDueForStudent(@Param("studentId") Long studentId, @Param("now") java.time.LocalDateTime now);
 }

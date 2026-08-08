@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import API from '../api/axios';
+import { formatDate } from '../utils/formatDate';
+import { stripQuestionFields } from '../utils/quizUtils';
 
 const optionBg = {
   A: 'rgba(124,58,237,0.12)',
@@ -110,11 +112,6 @@ export default function HistoryPage() {
 
   const toggleFlip = (idx) => {
     setFlippedCards(prev => ({ ...prev, [idx]: !prev[idx] }));
-  };
-
-  const formatDate = (dt) => {
-    if (!dt) return '';
-    return new Date(dt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   const hasAnyMaterials = materials && (materials.hasSummary || materials.hasFlashcards || materials.hasQuiz);

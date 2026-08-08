@@ -101,7 +101,7 @@ public class OpenRouterService {
                             fc.get("answer").asText()
                     );
                     flashcard = flashcardRepository.save(flashcard);
-                    flashcardDTOs.add(new FlashcardDTO(flashcard.getId(), flashcard.getQuestion(), flashcard.getAnswer()));
+                    flashcardDTOs.add(new FlashcardDTO(flashcard.getId(), flashcard.getQuestion(), flashcard.getAnswer(), flashcard.getBoxLevel(), flashcard.getNextReviewDate()));
                 }
             }
 

@@ -1,20 +1,18 @@
 spring:
   datasource:
-    # Use H2 in file-based mode (data will be lost if Render spins down free tier without a persistent disk)
-    url: jdbc:h2:file:./data/studyassistant_prod
-    driverClassName: org.h2.Driver
-    username: sa
-    password: password
+    # TiDB Cloud — connection details injected via Render environment variables
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/study_assistant_db?sslMode=VERIFY_IDENTITY&enabledTLSProtocols=TLSv1.2,TLSv1.3&createDatabaseIfNotExist=true}
+    username: ${SPRING_DATASOURCE_USERNAME:4H1xmQtU8dEWWtm.root}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-  h2:
-    console:
-      enabled: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
 openrouter:
-  # Render environment variable
   api:
     key: ${OPENROUTER_API_KEY}
 

@@ -3,6 +3,7 @@ package com.studyassistant.service;
 import com.studyassistant.dto.AuthResponse;
 import com.studyassistant.dto.LoginRequest;
 import com.studyassistant.dto.RegisterRequest;
+import com.studyassistant.exception.UnauthorizedException;
 import com.studyassistant.model.Student;
 import com.studyassistant.repository.StudentRepository;
 import com.studyassistant.security.JwtUtil;
@@ -41,10 +42,10 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         Student student = studentRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), student.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new UnauthorizedException("Invalid email or password");
         }
 
         String token = jwtUtil.generateToken(student.getEmail());

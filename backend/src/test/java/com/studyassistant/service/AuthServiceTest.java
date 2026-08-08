@@ -3,6 +3,7 @@ package com.studyassistant.service;
 import com.studyassistant.dto.AuthResponse;
 import com.studyassistant.dto.LoginRequest;
 import com.studyassistant.dto.RegisterRequest;
+import com.studyassistant.exception.UnauthorizedException;
 import com.studyassistant.model.Student;
 import com.studyassistant.repository.StudentRepository;
 import com.studyassistant.security.JwtUtil;
@@ -81,12 +82,21 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Login with wrong password - throws exception")
+    @DisplayName("Login with wrong password - throws UnauthorizedException (401)")
     void loginWrongPassword() {
         LoginRequest request = new LoginRequest("john@example.com", "wrong");
         when(studentRepository.findByEmail("john@example.com")).thenReturn(Optional.of(testStudent));
         when(passwordEncoder.matches("wrong", "encoded_password")).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+        assertThrows(UnauthorizedException.class, () -> authService.login(request));
+    }
+
+    @Test
+    @DisplayName("Login with unknown email - throws UnauthorizedException (401)")
+    void loginUnknownEmail() {
+        LoginRequest request = new LoginRequest("ghost@example.com", "whatever");
+        when(studentRepository.findByEmail("ghost@example.com")).thenReturn(Optional.empty());
+
+        assertThrows(UnauthorizedException.class, () -> authService.login(request));
     }
 }

@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,16 +61,16 @@ public class NoteController {
     }
 
     @GetMapping("/{noteId}")
-    @Operation(summary = "Get a specific note by ID")
-    public ResponseEntity<Map<String, Object>> getNoteById(@PathVariable Long noteId) {
-        Note note = noteService.getNoteById(noteId);
+    @Operation(summary = "Get a specific note by ID (owner only)")
+    public ResponseEntity<Map<String, Object>> getNoteById(@PathVariable Long noteId, Authentication authentication) {
+        Note note = noteService.getNoteById(noteId, authentication.getName());
         return ResponseEntity.ok(buildNoteResponse(note));
     }
 
     @GetMapping("/{noteId}/study-materials")
-    @Operation(summary = "Get stored study materials (flashcards + quiz Q&A with answers) for a note")
-    public ResponseEntity<Map<String, Object>> getStudyMaterials(@PathVariable Long noteId) {
-        Map<String, Object> materials = noteService.getStoredStudyMaterials(noteId);
+    @Operation(summary = "Get stored study materials (flashcards + quiz Q&A with answers) for a note (owner only)")
+    public ResponseEntity<Map<String, Object>> getStudyMaterials(@PathVariable Long noteId, Authentication authentication) {
+        Map<String, Object> materials = noteService.getStoredStudyMaterials(noteId, authentication.getName());
         return ResponseEntity.ok(materials);
     }
 

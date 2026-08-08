@@ -73,8 +73,10 @@ public class NoteService {
         return noteRepository.findTop5ByStudentIdOrderByCreatedAtDesc(student.getId());
     }
 
-    public Note getNoteById(Long noteId) {
-        return noteRepository.findById(noteId)
+    public Note getNoteById(Long noteId, String email) {
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        return noteRepository.findByIdAndStudentId(noteId, student.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + noteId));
     }
 
@@ -84,9 +86,10 @@ public class NoteService {
         return noteRepository.countByStudentId(student.getId());
     }
 
-    public Map<String, Object> getStoredStudyMaterials(Long noteId) {
-        // Verify note exists
-        Note note = noteRepository.findById(noteId)
+    public Map<String, Object> getStoredStudyMaterials(Long noteId, String email) {
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        Note note = noteRepository.findByIdAndStudentId(noteId, student.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + noteId));
 
         Map<String, Object> result = new HashMap<>();

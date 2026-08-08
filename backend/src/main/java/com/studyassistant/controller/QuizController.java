@@ -5,6 +5,7 @@ import com.studyassistant.dto.QuizAttemptResponse;
 import com.studyassistant.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class QuizController {
     @PostMapping("/attempt")
     @Operation(summary = "Submit a quiz attempt with answers")
     public ResponseEntity<QuizAttemptResponse> submitAttempt(
-            @RequestBody QuizAttemptRequest request,
+            @Valid @RequestBody QuizAttemptRequest request,
             Authentication authentication) {
         QuizAttemptResponse response = quizService.submitAttempt(authentication.getName(), request);
         return ResponseEntity.ok(response);

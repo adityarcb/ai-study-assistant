@@ -1,6 +1,7 @@
 package com.studyassistant.config;
 
 import com.studyassistant.security.JwtAuthFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,16 +29,19 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> {})
-            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"status\":401,\"message\":\"Authentication required\"}");
+            }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
-                    "/api-docs/**",
-                    "/h2-console/**"
+                    "/api-docs/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

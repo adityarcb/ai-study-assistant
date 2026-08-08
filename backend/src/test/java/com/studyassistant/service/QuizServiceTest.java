@@ -2,6 +2,7 @@ package com.studyassistant.service;
 
 import com.studyassistant.dto.QuizAttemptRequest;
 import com.studyassistant.dto.QuizAttemptResponse;
+import com.studyassistant.exception.ForbiddenException;
 import com.studyassistant.model.*;
 import com.studyassistant.repository.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -136,5 +137,20 @@ class QuizServiceTest {
 
         assertEquals(4, res.getBreakdown().stream().filter(QuizAttemptResponse.QuestionBreakdown::isCorrect).count());
         assertEquals(1, res.getBreakdown().stream().filter(b -> !b.isCorrect()).count());
+    }
+
+    @Test
+    @DisplayName("Attempting a quiz owned by another student - throws ForbiddenException")
+    void attemptOtherStudentsQuizThrowsForbidden() {
+        Student other = new Student("Other", "other@example.com", "pass");
+        other.setId(2L);
+        note.setStudent(other);
+
+        when(studentRepository.findByEmail("test@example.com")).thenReturn(Optional.of(student));
+        when(quizRepository.findById(1L)).thenReturn(Optional.of(quiz));
+
+        assertThrows(ForbiddenException.class, () ->
+                quizService.submitAttempt("test@example.com", buildRequest("A", "B", "C", "D", "A")));
+        verify(quizAttemptRepository, never()).save(any());
     }
 }

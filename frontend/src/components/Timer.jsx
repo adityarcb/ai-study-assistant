@@ -3,21 +3,27 @@ import { useState, useEffect, useRef } from 'react';
 export default function Timer({ totalSeconds, onTimeUp }) {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const intervalRef = useRef(null);
+  const onTimeUpRef = useRef(onTimeUp);
+  onTimeUpRef.current = onTimeUp;
 
   useEffect(() => {
+    setSecondsLeft(totalSeconds);
     intervalRef.current = setInterval(() => {
       setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current);
-          onTimeUp();
-          return 0;
-        }
-        return prev - 1;
+        const next = prev - 1;
+        return next > 0 ? next : 0;
       });
     }, 1000);
 
     return () => clearInterval(intervalRef.current);
-  }, [totalSeconds, onTimeUp]);
+  }, [totalSeconds]);
+
+  useEffect(() => {
+    if (secondsLeft <= 0 && secondsLeft === 0) {
+      clearInterval(intervalRef.current);
+      onTimeUpRef.current?.();
+    }
+  }, [secondsLeft]);
 
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
@@ -27,30 +33,27 @@ export default function Timer({ totalSeconds, onTimeUp }) {
   const isCritical = secondsLeft <= 10;
 
   return (
-    <div className="flex items-center gap-4">
-      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
-        isCritical
-          ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-          : isLow
-          ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-          : 'bg-surface-700/50 border-surface-600/50 text-surface-200'
-      } transition-colors duration-300`}>
-        <svg className={`w-5 h-5 ${isCritical ? 'animate-pulse' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span className="font-mono font-bold text-lg tabular-nums">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '0.5rem',
+        padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid',
+        borderColor: isCritical ? 'rgba(244,63,94,0.3)' : isLow ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)',
+        background: isCritical ? 'rgba(244,63,94,0.1)' : isLow ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.05)',
+        color: isCritical ? '#fb7185' : isLow ? '#fbbf24' : '#e2e8f0',
+        transition: 'all 0.3s ease',
+      }}>
+        <span style={{ fontSize: '1.1rem' }}>{isCritical ? '🔴' : isLow ? '🟡' : '⏱️'}</span>
+        <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.05em' }}>
           {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
         </span>
       </div>
 
-      {/* Mini progress bar */}
-      <div className="flex-1 h-1.5 bg-surface-700 rounded-full overflow-hidden max-w-xs">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ease-linear ${
-            isCritical ? 'bg-rose-500' : isLow ? 'bg-amber-500' : 'bg-primary-500'
-          }`}
-          style={{ width: `${progress}%` }}
-        />
+      <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '99px', overflow: 'hidden', maxWidth: '180px' }}>
+        <div style={{
+          width: `${progress}%`, height: '100%', borderRadius: '99px',
+          background: isCritical ? 'linear-gradient(90deg, #f43f5e, #fb7185)' : isLow ? 'linear-gradient(90deg, #f59e0b, #fbbf24)' : 'linear-gradient(90deg, #7c3aed, #38bdf8)',
+          transition: 'width 1s linear',
+        }} />
       </div>
     </div>
   );

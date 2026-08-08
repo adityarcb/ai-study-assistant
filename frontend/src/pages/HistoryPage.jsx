@@ -131,7 +131,7 @@ export default function HistoryPage() {
           <p style={{ color: '#64748b', marginTop: '0.4rem' }}>Select a note to revisit your generated summaries, flashcards, and quizzes.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+        <div className="sidebar-note-list" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
           {/* Left Panel: Notes List */}
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1.25rem', overflow: 'hidden' }}>

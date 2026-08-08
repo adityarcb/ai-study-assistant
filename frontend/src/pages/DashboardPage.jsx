@@ -131,6 +131,7 @@ export default function DashboardPage() {
   const [trends, setTrends] = useState({ notes: '', quizzes: '', score: '', scorePill: '', cards: '', pendingQuizzes: 0, best: null, lowest: null, passRate: null });
   const [failingQuizzes, setFailingQuizzes] = useState([]);
   const [quizRetakeMap, setQuizRetakeMap] = useState({});
+  const [materialsStatus, setMaterialsStatus] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -170,6 +171,16 @@ export default function DashboardPage() {
           }
         });
         setQuizRetakeMap(retakeMap);
+
+        const statusMap = {};
+        Object.entries(materialsByNote).forEach(([noteId, mat]) => {
+          statusMap[noteId] = {
+            hasSummary: !!(mat.summary && String(mat.summary).trim().length > 0),
+            hasFlashcards: (mat.flashcards || []).length > 0,
+            hasQuiz: !!mat.hasQuiz,
+          };
+        });
+        setMaterialsStatus(statusMap);
         const st = scoreTrend(attempts);
         const percentages = attempts.map((a) => Number(a.percentage));
 
@@ -272,7 +283,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Middle Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="two-panel-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '1.5rem', marginBottom: '1.5rem' }}>
         {/* Chart */}
         <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
@@ -334,37 +345,54 @@ export default function DashboardPage() {
       </div>
 
       {/* Bottom Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '1.5rem' }}>
+      <div className="dashboard-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '1.5rem' }}>
         {/* Continue Learning */}
         <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', fontWeight: 600 }}>Continue Learning</h3>
-              <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Pick up where you left off</p>
+              <p style={{ fontSize: '0.8rem', color: '#64748b' }}>{recentNotes.length > 0 ? 'Pick up where you left off' : 'Start your learning journey'}</p>
             </div>
             <Link to="/history" style={{ fontSize: '0.8rem', color: '#8b5cf6', textDecoration: 'none' }}>View all</Link>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(168,85,247,0.2)', color: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>📄</div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '0.95rem', color: '#f8fafc', fontWeight: 500, marginBottom: '0.4rem' }}>
-                {recentNotes.length > 0 ? recentNotes[0].title : 'Database Normalization'}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '99px' }}>
-                  <div style={{ width: '60%', height: '100%', background: 'linear-gradient(90deg, #a855f7, #38bdf8)', borderRadius: '99px' }} />
-                </div>
-                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>60% Complete</span>
-              </div>
+          {recentNotes.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '1.75rem 1rem' }}>
+              <div style={{ fontSize: '2.25rem', marginBottom: '0.75rem' }}>🚀</div>
+              <p style={{ fontSize: '0.9rem', color: '#e2e8f0', margin: '0 0 0.25rem' }}>No notes yet</p>
+              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 1rem' }}>Upload your first note and let AI generate study materials</p>
+              <button onClick={() => navigate('/notes')} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                Upload your first note →
+              </button>
             </div>
-            <button
-              onClick={() => navigate(recentNotes.length > 0 ? '/history' : '/notes', recentNotes.length > 0 ? { state: { selectedNoteId: recentNotes[0].noteId } } : undefined)}
-              className="btn-primary"
-              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
-            >
-              Continue Study →
-            </button>
-          </div>
+          ) : (() => {
+            const cont = recentNotes[0];
+            const status = materialsStatus[cont.noteId];
+            const done = status ? [status.hasSummary, status.hasFlashcards, status.hasQuiz].filter(Boolean).length : 0;
+            const pct = status ? Math.round((done / 3) * 100) : 0;
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(168,85,247,0.2)', color: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>📄</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: '0.95rem', color: '#f8fafc', fontWeight: 500, marginBottom: '0.4rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {cont.title}
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '99px' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg, #a855f7, #38bdf8)', borderRadius: '99px' }} />
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'nowrap' }}>{pct}% Complete</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/history', { state: { selectedNoteId: cont.noteId } })}
+                  className="btn-primary"
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                >
+                  Continue Study →
+                </button>
+              </div>
+            );
+          })()}
         </div>
       </div>
 

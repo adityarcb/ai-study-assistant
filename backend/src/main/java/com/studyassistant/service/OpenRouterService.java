@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyassistant.dto.FlashcardDTO;
 import com.studyassistant.dto.GenerateResponse;
 import com.studyassistant.dto.QuizQuestionDTO;
+import com.studyassistant.exception.ForbiddenException;
 import com.studyassistant.exception.ResourceNotFoundException;
 import com.studyassistant.model.*;
 import com.studyassistant.repository.*;
@@ -13,8 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,21 +39,32 @@ public class OpenRouterService {
     private final FlashcardRepository flashcardRepository;
     private final QuizRepository quizRepository;
     private final QuizQuestionRepository quizQuestionRepository;
+    private final StudentRepository studentRepository;
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 
     public OpenRouterService(NoteRepository noteRepository, FlashcardRepository flashcardRepository,
-                         QuizRepository quizRepository, QuizQuestionRepository quizQuestionRepository) {
+                         QuizRepository quizRepository, QuizQuestionRepository quizQuestionRepository,
+                         StudentRepository studentRepository) {
         this.noteRepository = noteRepository;
         this.flashcardRepository = flashcardRepository;
         this.quizRepository = quizRepository;
         this.quizQuestionRepository = quizQuestionRepository;
+        this.studentRepository = studentRepository;
         this.objectMapper = new ObjectMapper();
-        this.restTemplate = new RestTemplate();
+
+        var factory = new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(5));
+        factory.setReadTimeout(Duration.ofSeconds(120));
+        this.restTemplate = new RestTemplate(factory);
     }
 
-    public GenerateResponse generateStudyMaterials(Long noteId) {
-        Note note = noteRepository.findById(noteId)
+    @Transactional
+    public GenerateResponse generateStudyMaterials(Long noteId, String email) {
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+
+        Note note = noteRepository.findByIdAndStudentId(noteId, student.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + noteId));
 
         String prompt = buildPrompt(note.getContent());
@@ -172,18 +189,39 @@ public class OpenRouterService {
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, String.class);
+        int maxRetries = 2;
+        for (int attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, String.class);
 
-            if (response.getStatusCode() != HttpStatus.OK) {
-                throw new RuntimeException("OpenRouter API returned status: " + response.getStatusCode());
+                if (response.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS && attempt < maxRetries) {
+                    long wait = 1000L * (attempt + 1);
+                    logger.warn("Rate limited on attempt {}/{}, retrying after {}ms", attempt + 1, maxRetries + 1, wait);
+                    try { Thread.sleep(wait); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                    continue;
+                }
+
+                if (response.getStatusCode() != HttpStatus.OK) {
+                    throw new RuntimeException("OpenRouter API returned status: " + response.getStatusCode());
+                }
+
+                return response.getBody();
+            } catch (ResourceAccessException e) {
+                if (attempt < maxRetries) {
+                    logger.warn("Network error on attempt {}/{}, retrying: {}", attempt + 1, maxRetries + 1, e.getMessage());
+                    try { Thread.sleep(1000L); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                    continue;
+                }
+                logger.error("OpenRouter API call failed after {} attempts: {}", maxRetries + 1, e.getMessage());
+                throw new RuntimeException("Failed to connect to AI service. Please try again later.");
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                logger.error("OpenRouter API call failed: {}", e.getMessage());
+                throw new RuntimeException("Failed to call OpenRouter API: " + e.getMessage());
             }
-
-            return response.getBody();
-        } catch (Exception e) {
-            logger.error("OpenRouter API call failed: {}", e.getMessage());
-            throw new RuntimeException("Failed to call OpenRouter API: " + e.getMessage());
         }
+        throw new RuntimeException("Failed to call OpenRouter API after " + (maxRetries + 1) + " attempts");
     }
 
     private String extractJsonFromResponse(String responseStr) {

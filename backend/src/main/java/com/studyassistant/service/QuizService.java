@@ -2,6 +2,7 @@ package com.studyassistant.service;
 
 import com.studyassistant.dto.QuizAttemptRequest;
 import com.studyassistant.dto.QuizAttemptResponse;
+import com.studyassistant.exception.ForbiddenException;
 import com.studyassistant.exception.ResourceNotFoundException;
 import com.studyassistant.model.*;
 import com.studyassistant.repository.*;
@@ -36,6 +37,14 @@ public class QuizService {
 
         Quiz quiz = quizRepository.findById(request.getQuizId())
                 .orElseThrow(() -> new ResourceNotFoundException("Quiz not found with id: " + request.getQuizId()));
+
+        if (!quiz.getNote().getStudent().getId().equals(student.getId())) {
+            throw new ForbiddenException("You do not have access to this quiz");
+        }
+
+        if (!quiz.getNote().getStudent().getId().equals(student.getId())) {
+            throw new ForbiddenException("You do not have access to this quiz");
+        }
 
         List<QuizQuestion> questions = quizQuestionRepository.findByQuizId(quiz.getId());
 

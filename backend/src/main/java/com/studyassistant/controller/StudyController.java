@@ -5,6 +5,7 @@ import com.studyassistant.service.OpenRouterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -21,13 +22,14 @@ public class StudyController {
     }
 
     @PostMapping("/generate")
-    @Operation(summary = "Generate summary, flashcards, and quiz from a note using OpenRouter AI")
-    public ResponseEntity<GenerateResponse> generateStudyMaterials(@RequestBody Map<String, Long> request) {
+    @Operation(summary = "Generate summary, flashcards, and quiz from a note using AI (owner only)")
+    public ResponseEntity<GenerateResponse> generateStudyMaterials(
+            @RequestBody Map<String, Long> request, Authentication authentication) {
         Long noteId = request.get("noteId");
         if (noteId == null) {
             throw new IllegalArgumentException("noteId is required");
         }
-        GenerateResponse response = openRouterService.generateStudyMaterials(noteId);
+        GenerateResponse response = openRouterService.generateStudyMaterials(noteId, authentication.getName());
         return ResponseEntity.ok(response);
     }
 }

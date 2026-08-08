@@ -57,7 +57,7 @@ export default function FlashcardsPage() {
         <p style={{ color: '#64748b', marginTop: '0.4rem' }}>Select a note to review its flashcards. Click a card to flip it.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="sidebar-note-list" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
         {/* Notes list */}
         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '1.25rem', overflow: 'hidden' }}>

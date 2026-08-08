@@ -85,6 +85,7 @@ public class QuizService {
         return attempts.stream().map(attempt -> {
             Map<String, Object> map = new java.util.HashMap<>();
             map.put("quizId", attempt.getQuiz().getId());
+            map.put("noteId", attempt.getQuiz().getNote().getId());
             map.put("noteTitle", attempt.getQuiz().getNote().getTitle());
             map.put("score", attempt.getScore());
             map.put("totalQuestions", attempt.getTotalQuestions());

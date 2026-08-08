@@ -52,7 +52,7 @@ export default function NotesPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+    <div className="min-h-screen p-8 max-w-3xl mx-auto">
       <div className="mb-8 animate-fade-in">
         <h1 className="text-3xl font-bold text-surface-100">Add New Note</h1>
         <p className="text-surface-400 mt-2">Paste your notes or upload a PDF to get started.</p>

@@ -36,7 +36,7 @@ export default function QuizPage() {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-16">
+      <div className="flex items-center justify-center p-8">
         <div className="glass-card p-8 text-center">
           <p className="text-surface-400 mb-4">No quiz data found. Please generate study materials first.</p>
           <button onClick={() => navigate('/dashboard')} className="btn-primary">Go to Dashboard</button>
@@ -52,7 +52,7 @@ export default function QuizPage() {
   const totalQuestions = questions.length;
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+    <div className="min-h-screen p-8 max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
@@ -65,7 +65,7 @@ export default function QuizPage() {
             </span>
           </p>
         </div>
-        <Timer totalSeconds={1500} onTimeUp={handleSubmit} />
+        <Timer totalSeconds={300} onTimeUp={handleSubmit} />
       </div>
 
       {/* Progress bar */}

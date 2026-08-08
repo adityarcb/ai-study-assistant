@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import API from '../api/axios';
 
 const optionBg = {
@@ -23,6 +23,8 @@ const optionColor = {
 
 export default function HistoryPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const autoSelectedRef = useRef(false);
   const [notes, setNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null);
   const [materials, setMaterials] = useState(null);
@@ -41,6 +43,30 @@ export default function HistoryPage() {
     try {
       const res = await API.get('/api/notes');
       setNotes(res.data);
+      const targetId = location.state?.selectedNoteId;
+      if (targetId && !autoSelectedRef.current) {
+        autoSelectedRef.current = true;
+        const target = res.data.find((n) => n.noteId === targetId);
+        if (target) {
+          setLoadingNotes(false);
+          setSelectedNote(target);
+          setMaterials(null);
+          setActiveSection('summary');
+          setFlippedCards({});
+          setLoadingMaterials(true);
+          try {
+            const matRes = await API.get(`/api/notes/${targetId}/study-materials`);
+            setMaterials(matRes.data);
+          } catch (err) {
+            console.error('Failed to load materials', err);
+            setMaterials({ error: 'Failed to load materials.' });
+          } finally {
+            setLoadingMaterials(false);
+          }
+          navigate(location.pathname, { replace: true, state: null });
+          return;
+        }
+      }
     } catch (err) {
       console.error('Failed to fetch notes', err);
     } finally {
@@ -94,8 +120,8 @@ export default function HistoryPage() {
   const hasAnyMaterials = materials && (materials.hasSummary || materials.hasFlashcards || materials.hasQuiz);
 
   return (
-    <div style={{ minHeight: '100vh', paddingTop: '5.5rem', paddingBottom: '3rem', background: 'radial-gradient(ellipse at 20% 20%, rgba(124,58,237,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 50%)' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
+    <div style={{ padding: '2rem 1rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ margin: '0 auto' }}>
 
         {/* Header */}
         <div style={{ marginBottom: '2rem' }}>

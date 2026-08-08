@@ -1,13 +1,14 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 export default function ResultPage() {
+  const { quizId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const { result, questions } = location.state || {};
 
   if (!result) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-16">
+      <div className="flex items-center justify-center p-8">
         <div className="glass-card p-8 text-center">
           <p className="text-surface-400 mb-4">No result data found.</p>
           <button onClick={() => navigate('/dashboard')} className="btn-primary">Go to Dashboard</button>
@@ -19,7 +20,7 @@ export default function ResultPage() {
   const { score, totalQuestions, percentage, passed, breakdown } = result;
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+    <div className="min-h-screen p-8 max-w-3xl mx-auto">
       {/* Score Card */}
       <div className="glass-card p-8 text-center mb-8 animate-fade-in">
         <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full mb-6 ${
@@ -88,7 +89,7 @@ export default function ResultPage() {
 
       {/* Action buttons */}
       <div className="flex gap-4 justify-center">
-        <button onClick={() => navigate(-2)} className="btn-secondary">Retake Quiz</button>
+        <button onClick={() => questions?.length && navigate(`/quiz/${quizId}`, { state: { questions } })} className="btn-secondary">Retake Quiz</button>
         <button onClick={() => navigate('/progress')} className="btn-primary">View Progress</button>
       </div>
     </div>

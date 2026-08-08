@@ -25,7 +25,7 @@ export default function StudyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center pt-16 gap-4">
+      <div className="flex flex-col items-center justify-center p-16 gap-4">
         <div className="w-16 h-16 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin" />
         <div className="text-center">
           <p className="text-xl font-semibold text-surface-100">Generating Study Materials</p>
@@ -37,7 +37,7 @@ export default function StudyPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-16 px-4">
+      <div className="flex items-center justify-center p-16 px-4">
         <div className="glass-card p-8 max-w-md text-center">
           <div className="text-4xl mb-4">⚠️</div>
           <p className="text-rose-300 mb-4">{error}</p>
@@ -48,7 +48,7 @@ export default function StudyPage() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+    <div className="min-h-screen p-8 max-w-4xl mx-auto">
       {/* Section A: Summary */}
       <section className="mb-12 animate-fade-in">
         <h2 className="text-2xl font-bold text-surface-100 mb-4 flex items-center gap-2">

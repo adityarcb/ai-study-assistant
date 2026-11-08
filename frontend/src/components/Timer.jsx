@@ -19,7 +19,7 @@ export default function Timer({ totalSeconds, onTimeUp }) {
   }, [totalSeconds]);
 
   useEffect(() => {
-    if (secondsLeft <= 0 && secondsLeft === 0) {
+    if (secondsLeft === 0) {
       clearInterval(intervalRef.current);
       onTimeUpRef.current?.();
     }

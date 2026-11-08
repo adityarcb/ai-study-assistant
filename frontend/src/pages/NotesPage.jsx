@@ -111,7 +111,7 @@ export default function NotesPage() {
                   </div>
                 ) : (
                   <div>
-                    <div className="text-4xl mb-2">📁</div>
+                    <div className="text-4xl mb-2">📤</div>
                     <p className="text-surface-300">Drop your file here or click to browse</p>
                     <p className="text-surface-500 text-sm mt-1">Max file size: 10MB</p>
                   </div>

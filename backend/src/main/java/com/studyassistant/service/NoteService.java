@@ -67,23 +67,11 @@ public class NoteService {
         return noteRepository.findByStudentIdOrderByCreatedAtDesc(student.getId());
     }
 
-    public List<Note> getRecentNotes(String email) {
-        Student student = studentRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        return noteRepository.findTop5ByStudentIdOrderByCreatedAtDesc(student.getId());
-    }
-
     public Note getNoteById(Long noteId, String email) {
         Student student = studentRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
         return noteRepository.findByIdAndStudentId(noteId, student.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + noteId));
-    }
-
-    public long countStudentNotes(String email) {
-        Student student = studentRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        return noteRepository.countByStudentId(student.getId());
     }
 
     public Map<String, Object> getStoredStudyMaterials(Long noteId, String email) {

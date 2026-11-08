@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import FlashcardFlip from '../components/FlashcardFlip';
-import ReactMarkdown from 'react-markdown';
 
 export default function StudyPage() {
   const { noteId } = useParams();

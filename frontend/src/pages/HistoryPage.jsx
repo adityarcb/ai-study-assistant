@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import API from '../api/axios';
 import { formatDate } from '../utils/formatDate';
-import { stripQuestionFields } from '../utils/quizUtils';
 
 const optionBg = {
   A: 'rgba(124,58,237,0.12)',

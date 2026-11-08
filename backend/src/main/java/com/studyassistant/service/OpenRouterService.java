@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyassistant.dto.FlashcardDTO;
 import com.studyassistant.dto.GenerateResponse;
 import com.studyassistant.dto.QuizQuestionDTO;
-import com.studyassistant.exception.ForbiddenException;
 import com.studyassistant.exception.ResourceNotFoundException;
 import com.studyassistant.model.*;
 import com.studyassistant.repository.*;
@@ -17,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.Duration;
 import java.util.ArrayList;

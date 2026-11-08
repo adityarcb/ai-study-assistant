@@ -1,6 +1,5 @@
 package com.studyassistant.service;
 
-import com.studyassistant.exception.ForbiddenException;
 import com.studyassistant.exception.ResourceNotFoundException;
 import com.studyassistant.model.Note;
 import com.studyassistant.model.Student;
@@ -40,7 +39,7 @@ class OpenRouterServiceTest {
     }
 
     @Test
-    @DisplayName("Another student cannot generate materials for someone else's note - ForbiddenException")
+    @DisplayName("Another student cannot generate materials for someone else's note - ResourceNotFoundException")
     void otherStudentCannotGenerate() {
         Student owner = new Student("Owner", "owner@test.com", "pass");
         owner.setId(1L);

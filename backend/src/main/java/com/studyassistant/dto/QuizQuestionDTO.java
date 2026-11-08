@@ -1,7 +1,5 @@
 package com.studyassistant.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class QuizQuestionDTO {
 
     private Long id;
@@ -10,9 +8,6 @@ public class QuizQuestionDTO {
     private String optionB;
     private String optionC;
     private String optionD;
-
-    @JsonIgnore
-    private String correctOption;
 
     public QuizQuestionDTO() {}
 
@@ -24,16 +19,6 @@ public class QuizQuestionDTO {
         this.optionB = optionB;
         this.optionC = optionC;
         this.optionD = optionD;
-    }
-
-    public QuizQuestionDTO(String questionText, String optionA, String optionB,
-                           String optionC, String optionD, String correctOption) {
-        this.questionText = questionText;
-        this.optionA = optionA;
-        this.optionB = optionB;
-        this.optionC = optionC;
-        this.optionD = optionD;
-        this.correctOption = correctOption;
     }
 
     public Long getId() { return id; }
@@ -53,7 +38,4 @@ public class QuizQuestionDTO {
 
     public String getOptionD() { return optionD; }
     public void setOptionD(String optionD) { this.optionD = optionD; }
-
-    public String getCorrectOption() { return correctOption; }
-    public void setCorrectOption(String correctOption) { this.correctOption = correctOption; }
 }

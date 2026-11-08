@@ -42,10 +42,6 @@ public class QuizService {
             throw new ForbiddenException("You do not have access to this quiz");
         }
 
-        if (!quiz.getNote().getStudent().getId().equals(student.getId())) {
-            throw new ForbiddenException("You do not have access to this quiz");
-        }
-
         List<QuizQuestion> questions = quizQuestionRepository.findByQuizId(quiz.getId());
 
         // Build a map of questionId -> correctOption
@@ -102,18 +98,5 @@ public class QuizService {
             map.put("attemptedAt", attempt.getAttemptedAt());
             return map;
         }).collect(Collectors.toList());
-    }
-
-    public long countStudentAttempts(String email) {
-        Student student = studentRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        return quizAttemptRepository.countByStudentId(student.getId());
-    }
-
-    public Double getAverageScore(String email) {
-        Student student = studentRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        Double avg = quizAttemptRepository.findAveragePercentageByStudentId(student.getId());
-        return avg != null ? Math.round(avg * 100.0) / 100.0 : 0.0;
     }
 }

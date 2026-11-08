@@ -15,7 +15,7 @@
     <artifactId>study-assistant</artifactId>
     <version>1.0.0</version>
     <name>AI Study Assistant</name>
-    <description>AI-powered study assistant with Gemini integration</description>
+    <description>AI-powered study assistant with OpenRouter integration</description>
 
     <properties>
         <java.version>17</java.version>
@@ -64,13 +64,6 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.11.5</version>
             <scope>runtime</scope>
-        </dependency>
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- Validation -->
@@ -130,14 +123,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

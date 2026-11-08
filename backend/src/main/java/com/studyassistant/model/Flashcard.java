@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 @Table(name = "flashcards")
 public class Flashcard {
 
-    public static final int MAX_BOX = 5;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

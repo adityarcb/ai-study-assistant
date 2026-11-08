@@ -12,17 +12,6 @@ public class FlashcardDTO {
 
     public FlashcardDTO() {}
 
-    public FlashcardDTO(Long id, String question, String answer) {
-        this.id = id;
-        this.question = question;
-        this.answer = answer;
-    }
-
-    public FlashcardDTO(String question, String answer) {
-        this.question = question;
-        this.answer = answer;
-    }
-
     public FlashcardDTO(Long id, String question, String answer, Integer boxLevel, LocalDateTime nextReviewDate) {
         this.id = id;
         this.question = question;
